@@ -11,4 +11,6 @@ server:
   port: 8082
 
 appid: 22f87a17fb25f8b77a8c442aac59ec09
-url.weather: https://api.openweathermap.org/data/2.5/weather
+
+url:
+  weather: https://api.openweathermap.org/data/2.5/weather
