@@ -25,20 +25,20 @@ import java.util.concurrent.TimeUnit;
 public class WeatherController {
     private final String appId;
     private final String weatherUrl;
-    private final RestTemplate restTemplate;
+    private final RestTemplate externalRestTemplate;
 
     @Autowired
     public WeatherController(@Value("${appid}") String appId,
-                             @Value("${url.weather}") String weatherUrl,
-                             RestTemplate restTemplate) {
+                             @Value("${url.external-api.weather}") String weatherUrl,
+                             RestTemplate externalRestTemplate) {
         this.appId = appId;
         this.weatherUrl = weatherUrl;
-        this.restTemplate = restTemplate;
+        this.externalRestTemplate = externalRestTemplate;
     }
 
-    @GetMapping("/weather")
-    @Cacheable(value = "root", key = "#coord")
-    public ResponseEntity<Root> getWeather(@RequestBody Coord coord) {
+    @GetMapping("/weather/lat={lat}&lon={lon}")
+    @Cacheable(value = "root", key = "{#lat , #lon}")
+    public ResponseEntity<Root> getWeather(@PathVariable("lat") String lat, @PathVariable("lon") String lon) {
         //54.1838 45.1749 - Saransk
         // Задержка для первого вызова, дальше мы будем подменять этот метод прокси и брать значение из кеша
         /*try {
@@ -48,22 +48,22 @@ public class WeatherController {
         }*/
 
         try{
-            String request = String.format("%s?lat=%f&lon=%f&units=metric&appid=%s",
-                    weatherUrl, coord.getLat(), coord.getLon(), appId);
-            return restTemplate.getForEntity(request, Root.class);
+            String request = String.format("%s?lat=%s&lon=%s&units=metric&appid=%s",
+                    weatherUrl, lat, lon, appId);
+            return externalRestTemplate.getForEntity(request, Root.class);
         }catch (RestClientException e){
-            return new ResponseEntity<>(new Root(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
     //Думаю, что Weather это ближе к документу, нежели к коллекции, поэтому предоставил такое наименование
     @GetMapping("/weather/lat={lat}&lon={lon}/main")
-    @Cacheable(value = "root", key = "{#lat , #lon}")
-    public ResponseEntity<Main> getMain(@PathVariable("lat") Double lat, @PathVariable("lon") Double lon) {
-        ResponseEntity<Root> root = getWeather(new Coord(lat, lon));
+    @Cacheable(value = "main", key = "{#lat , #lon}")
+    public ResponseEntity<Main> getMain(@PathVariable("lat") String lat, @PathVariable("lon") String lon) {
+        ResponseEntity<Root> root = getWeather(lat, lon);
         return root.getStatusCode() == HttpStatus.OK
                 ? new ResponseEntity<>(root.getBody().getMain(), HttpStatus.OK)
-                : new ResponseEntity<>(new Main(), HttpStatus.BAD_REQUEST);
+                : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
 }
