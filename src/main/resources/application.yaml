@@ -5,7 +5,8 @@ spring:
     admin:
       client:
         instance:
-          management-base-url: http://localhost:8088
+          api-gateway-port: 17957
+          management-base-url: http://localhost:${spring.boot.admin.client.instance.api-gateway-port}
 
 eureka:
   instance:
