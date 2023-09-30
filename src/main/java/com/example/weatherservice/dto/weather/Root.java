@@ -6,6 +6,7 @@ import com.example.weatherservice.dto.weather.submodules.Main;
 import com.example.weatherservice.dto.weather.submodules.Sys;
 import com.example.weatherservice.dto.weather.submodules.Weather;
 import com.example.weatherservice.dto.weather.submodules.Wind;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Root{
     private Coord coord;
     private ArrayList<Weather> weather;
