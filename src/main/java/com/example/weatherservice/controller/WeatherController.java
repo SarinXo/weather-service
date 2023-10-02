@@ -29,6 +29,8 @@ public class WeatherController {
     private final String weatherUrl;
     private final RestTemplate restTemplate;
 
+    private final ObjectMapper objectMapper;
+
     @Autowired
     public WeatherController(@Value("${appid}") String appId,
                              @Value("${url.external-api.weather}") String weatherUrl,
@@ -36,6 +38,7 @@ public class WeatherController {
         this.appId = appId;
         this.weatherUrl = weatherUrl;
         this.restTemplate = restTemplate;
+        objectMapper = new ObjectMapper();
     }
     @GetMapping(value = "/weather/lat={lat}&lon={lon}")
     @Cacheable(value = "root", key = "{#lat , #lon}")
@@ -43,7 +46,8 @@ public class WeatherController {
         try{
             String request = String.format("%s?lat=%s&lon=%s&units=metric&appid=%s",
                     weatherUrl, lat, lon, appId);
-            return restTemplate.getForEntity(request, Root.class);
+            var r = restTemplate.getForObject(request, Root.class);
+            return ResponseEntity.ok().body(r);
         }catch (RestClientException e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

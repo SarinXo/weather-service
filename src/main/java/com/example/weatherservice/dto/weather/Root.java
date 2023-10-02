@@ -7,9 +7,11 @@ import com.example.weatherservice.dto.weather.submodules.Sys;
 import com.example.weatherservice.dto.weather.submodules.Weather;
 import com.example.weatherservice.dto.weather.submodules.Wind;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.ws.rs.DefaultValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 
